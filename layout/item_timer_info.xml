@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.sgtc.countdown.view.SwipeMenuLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginVertical="@dimen/dp_2"
+    android:background="@color/black">
+
+    <RelativeLayout
+        android:id="@+id/rl_timer_info"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_66"
+        android:background="@drawable/bg_grey_rect"
+        android:elevation="2dp">
+        <TextView
+            android:id="@+id/tv_toal_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_8"
+            android:layout_marginLeft="@dimen/dp_12"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentLeft="true"
+            android:textColor="@color/grey"
+
+            android:text="00:00"
+            android:textSize="@dimen/dp_19"/>
+        <TextView
+            android:id="@+id/tv_cur_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tv_toal_time"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="@dimen/dp_12"
+            android:text="00:00"
+            android:textColor="@color/white"
+            android:textSize="@dimen/dp_19"/>
+
+        <CheckBox
+            android:id="@+id/ic_switch"
+            android:layout_width="@dimen/dp_43"
+            android:layout_height="@dimen/dp_43"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:button="@null"
+            android:layout_marginRight="@dimen/dp_6"
+            android:background="@drawable/selector_ic_start"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/rl_delete"
+        android:layout_alignParentRight="true"
+        android:layout_width="@dimen/dp_115"
+        android:layout_height="@dimen/dp_66"
+        android:background="@drawable/bg_red_rect"
+        android:layout_marginLeft="@dimen/dp_2"
+        android:paddingLeft="@dimen/dp_2"
+        android:elevation="1dp">
+        <ImageView
+            android:id="@+id/ic_delete"
+            android:layout_centerInParent="true"
+            android:layout_width="@dimen/dp_31"
+            android:layout_height="@dimen/dp_31"
+            android:src="@drawable/ic_close_no_bg"/>
+    </RelativeLayout>
+</com.sgtc.countdown.view.SwipeMenuLayout>
