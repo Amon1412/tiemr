@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    tools:context=".activity.TimerActivity">
+    <RelativeLayout
+        android:id="@+id/rl_tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <TextView
+            android:id="@+id/tv_time"
+            android:layout_marginTop="@dimen/cur_time_margin_top"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:text="00:00"
+            android:textSize="@dimen/dp_19"/>
+        <ImageView
+            android:id="@+id/ic_back"
+            android:layout_width="@dimen/dp_43"
+            android:layout_height="@dimen/dp_43"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_marginTop="@dimen/top_btn_margin_top"
+            android:layout_marginLeft="@dimen/dp_19"
+            android:clickable="true"
+            android:src="@drawable/ic_back"/>
+        <ImageView
+            android:id="@+id/ic_add"
+            android:layout_width="@dimen/dp_43"
+            android:layout_height="@dimen/dp_43"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="@dimen/top_btn_margin_top"
+            android:layout_marginRight="@dimen/dp_13"
+            android:clickable="true"
+            android:src="@drawable/ic_add"/>
+        <ImageView
+            android:id="@+id/ic_close"
+            android:layout_width="@dimen/dp_43"
+            android:layout_height="@dimen/dp_43"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:layout_marginBottom="@dimen/dp_19"
+            android:layout_marginLeft="@dimen/dp_18"
+            android:src="@drawable/ic_close"/>
+        <CheckBox
+            android:id="@+id/ic_switch"
+            android:layout_width="@dimen/dp_43"
+            android:layout_height="@dimen/dp_43"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginBottom="@dimen/dp_19"
+            android:layout_marginRight="@dimen/dp_13"
+
+            android:clickable="true"
+            android:button="@null"
+            android:background="@drawable/selector_ic_start"/>
+        <com.sgtc.countdown.view.MyTabLayout
+            android:id="@+id/scroll_bar"
+            app:tabMode="scrollable"
+            app:orientation="vertical"
+            app:calibre="@dimen/dp_10"
+            android:layout_alignRight="@id/ic_add"
+            android:layout_below="@id/ic_add"
+            android:layout_width="@dimen/dp_10"
+            android:layout_height="@dimen/dp_66"/>
+    </RelativeLayout>
+
+
+    <com.sgtc.countdown.view.Timer
+        android:id="@+id/timer"
+        android:layout_width="@dimen/dp_204"
+        android:layout_height="@dimen/dp_204"
+        android:layout_centerInParent="true" />
+
+</RelativeLayout>
