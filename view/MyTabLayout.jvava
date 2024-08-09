@@ -1,0 +1,117 @@
+package com.sgtc.countdown.view;
+
+import android.content.Context;
+import android.content.res.TypedArray;
+import android.util.AttributeSet;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import com.sgtc.countdown.R;
+
+public class MyTabLayout extends ScrollView {
+
+    private LinearLayout linearLayout;
+    private int orientation;
+    private int calibre;
+    private int tabCount;
+
+    public MyTabLayout(@NonNull Context context, int orientation, int calibre) {
+        super(context);
+        this.orientation = orientation;
+        this.calibre = calibre;
+        init();
+
+    }
+
+    public MyTabLayout(@NonNull Context context, @Nullable AttributeSet attrs) {
+        super(context, attrs);
+        TypedArray a = context.getTheme().obtainStyledAttributes(
+                attrs,
+                R.styleable.MyTabLayout,
+                0, 0);
+        try {
+            orientation = a.getInt(R.styleable.MyTabLayout_orientation, LinearLayout.VERTICAL);
+            calibre = a.getDimensionPixelSize(R.styleable.MyTabLayout_calibre, 0);
+        } finally {
+            a.recycle();
+        }
+        init();
+    }
+
+    private void init() {
+        linearLayout = new LinearLayout(getContext());
+        linearLayout.setOrientation(orientation);
+        linearLayout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+        this.addView(linearLayout);
+        this.setScrollBarSize(0);
+        this.setOnTouchListener(new OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, android.view.MotionEvent event) {
+                return true;
+            }
+        });
+    }
+
+    public void setTabCount(int count) {
+        this.tabCount = count;
+        updateTabs();
+    }
+
+    private void updateTabs() {
+        int curCount = getCurCount();
+        if (linearLayout == null) {
+            return;
+        }
+        if (tabCount < curCount) {
+            for (int i = tabCount; i < curCount; i++) {
+                linearLayout.removeViewAt(i);
+            }
+        } else if (tabCount > curCount) {
+            for (int i = curCount; i < tabCount; i++) {
+                ImageView imageView = new ImageView(getContext());
+                imageView.setLayoutParams(new LinearLayout.LayoutParams(calibre, calibre+1));
+                imageView.setImageResource(R.drawable.selector_ic_tab);
+                linearLayout.addView(imageView);
+//                Log.e("TAG", "updateTabs: count=" + getCurCount());
+            }
+        }
+        if (tabCount <= 1) {
+            setVisibility(GONE);
+        } else {
+            setVisibility(VISIBLE);
+        }
+    }
+
+    public void setOrientation(int orientation) {
+        this.orientation = orientation;
+        linearLayout.setOrientation(orientation);
+    }
+
+    public int getCurCount() {
+        return linearLayout.getChildCount();
+    }
+
+    public void setTabSelected(int index) {
+        int totalCount = getCurCount();
+        for (int i = 0; i < totalCount; i++) {
+            ImageView imageView = (ImageView) linearLayout.getChildAt(i);
+            if (i == index) {
+                imageView.setSelected(true);
+                // 计算选中的子 View 在 ScrollView 中的位置
+                int selectedViewTop = imageView.getTop();
+
+                int scrollY = selectedViewTop - getHeight() / 2 + imageView.getHeight() / 2;
+                // 滚动 ScrollView 到选中的子 View
+                smoothScrollTo(0, scrollY);
+            } else {
+                imageView.setSelected(false);
+            }
+        }
+    }
+
+}
