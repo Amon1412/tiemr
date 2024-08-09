@@ -1,0 +1,137 @@
+package com.sgtc.countdown;
+
+import android.app.AlarmManager;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.Service;
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Looper;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.PowerManager;
+import android.os.SystemClock;
+import android.provider.Settings;
+import android.util.Log;
+
+import androidx.annotation.NonNull;
+import androidx.core.app.NotificationCompat;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
+
+import com.sgtc.countdown.data.Data;
+import com.sgtc.countdown.data.EventMessage;
+
+import org.greenrobot.eventbus.EventBus;
+
+public class TimerService extends Service {
+    private static final int NOTIFICATION_ID = 1;  // 通知 ID，必须是正整数
+    private static final String CHANNEL_ID = "timer";  // 通知渠道 ID
+
+    private static final int MSG_TIME_GONE = 0;
+
+
+    private Handler handler = new Handler(Looper.getMainLooper()){
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+            if (msg.what == MSG_TIME_GONE) {
+                // 每隔1秒执行一次任务
+                handler.sendMessageDelayed(handler.obtainMessage(MSG_TIME_GONE),1000);
+                Data.getInstance().timeGone();
+                EventBus.getDefault().post(new EventMessage(0, "timeGone"));
+            }
+        }
+    };
+
+    final Messenger messenger = new Messenger(handler);
+
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        // 创建通知渠道
+        createNotificationChannel();
+
+        // 创建前台通知
+        Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setContentTitle("Timer Service")
+                .setContentText("Service is running") // 添加内容文本
+                .setSmallIcon(R.drawable.ic_app)  // 设置小图标
+                .setPriority(NotificationCompat.PRIORITY_HIGH) // 高优先级
+                .build();
+
+        // 调用 startForeground
+        startForeground(NOTIFICATION_ID, notification);
+
+        handler.sendMessage(handler.obtainMessage(MSG_TIME_GONE));
+
+        // 确保电池优化设置
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
+            if (!pm.isIgnoringBatteryOptimizations(getPackageName())) {
+                Intent intent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+                intent.setData(Uri.parse("package:" + getPackageName()));
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+            }
+        }
+    }
+
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        // 设置 WorkManager 作为后备方案
+        OneTimeWorkRequest restartServiceRequest = new OneTimeWorkRequest.Builder(RestartServiceWorker.class)
+                .addTag("restartService")
+                .build();
+        WorkManager.getInstance(this).enqueue(restartServiceRequest);
+
+        // 这里处理服务启动逻辑
+        return START_STICKY;
+    }
+
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        // 停止任务
+        handler.removeMessages(MSG_TIME_GONE);
+        Log.e("TAG", "onDestroy: TimerService");
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return messenger.getBinder();
+    }
+
+    private void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel serviceChannel = new NotificationChannel(
+                    CHANNEL_ID,
+                    "Foreground Service Channel",
+                    NotificationManager.IMPORTANCE_HIGH // 设置为高优先级
+            );
+            NotificationManager manager = getSystemService(NotificationManager.class);
+            manager.createNotificationChannel(serviceChannel);
+        }
+    }
+
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        super.onTaskRemoved(rootIntent);
+        // 重启服务
+        Intent restartServiceIntent = new Intent(getApplicationContext(), TimerService.class);
+        restartServiceIntent.setPackage(getPackageName());
+        PendingIntent restartServicePendingIntent = PendingIntent.getService(this, 1, restartServiceIntent, PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);
+        AlarmManager alarmService = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        alarmService.set(
+                AlarmManager.ELAPSED_REALTIME,
+                SystemClock.elapsedRealtime() + 1000,
+                restartServicePendingIntent);
+    }
+}
